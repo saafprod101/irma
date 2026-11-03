@@ -81,7 +81,7 @@
     if (st.portalKey){ watch(cid, st.portalKey); kick(cid); return; }
     if (setup[cid]) return; setup[cid] = true;
     const key = newKey();
-    await S.db.doc(B(cid)+'settings/main').update({portalKey:key, portalUrl:portalBase()+'?k='+key});
+    await S.db.doc(B(cid)+'settings/main').update({portalKey:key, portalUrl:portalBase()+'#k='+key});
     await S.db.doc('clients/'+cid).set(Object.assign({}, S.clients[cid]||{}, {name:st.client, status:(S.clients[cid]||{}).status||'active', setup:{drive:'none', portal:'done'}}));
   }
   setInterval(()=>{ if (!S.db || !S.regLoaded) return; for (const cid of activeClients()) setup(cid).catch(note); }, 1500);

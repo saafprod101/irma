@@ -2,6 +2,16 @@
 (function(){
   const ROLE = window.IRMA_ROLE;
   const CODE_KEY = 'irma-team-code';
+  const PORTAL_KEY = 'irma-portal-key';
+  /* مفتاح الوصول يصل بعد علامة # فلا يُرسل إلى الخادم، ويُحذف من الشريط فوراً */
+  function takeKey(store){
+    const m = /(?:^#|&)k=([A-Za-z0-9_-]+)/.exec(location.hash);
+    if (!m) return null;
+    try{ localStorage.setItem(store, m[1]); }catch(e){}
+    try{ history.replaceState(null,'',location.pathname+location.search); }catch(e){}
+    return m[1];
+  }
+  window.addEventListener('hashchange', ()=>{ if (/(?:^#|&)k=/.test(location.hash)){ takeKey(ROLE==='team'?CODE_KEY:PORTAL_KEY); location.reload(); } });
   firebase.initializeApp(window.IRMA_FIREBASE);
   const fs = firebase.firestore();
   try{ fs.settings({ignoreUndefinedProperties:true, merge:true}); }catch(e){}
@@ -51,8 +61,7 @@
   const USER = {id:async()=>null, isOwner:async()=>false, can:async()=>true};
 
   async function teamSignIn(){
-    const u = new URLSearchParams(location.search).get('k');
-    if (u){ try{ localStorage.setItem(CODE_KEY,u); }catch(e){} try{ history.replaceState(null,'',location.pathname+location.hash); }catch(e){} }
+    const u = takeKey(CODE_KEY);
     let code = null; try{ code = localStorage.getItem(CODE_KEY); }catch(e){}
     code = code || u;
     if (!code){ gate(); throw new Error('no-code'); }
@@ -85,7 +94,8 @@
     window.IRMA_RAW = API;
     window.claude = {use: async n => { await ready; return n==='db' ? API('board/main/') : USER; }};
   } else if (ROLE==='portal'){
-    const key = new URLSearchParams(location.search).get('k');
+    let key = takeKey(PORTAL_KEY);
+    if (!key){ try{ key = localStorage.getItem(PORTAL_KEY); }catch(e){} }
     if (key && /^[A-Za-z0-9_-]{24,}$/.test(key)){
       window.claude = {use: async n => n==='db' ? API('spaces/'+key+'/') : USER};
     }
