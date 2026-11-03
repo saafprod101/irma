@@ -1,0 +1,1 @@
+window.IRMA_FIREBASE = {apiKey:"AIzaSyCNQ-uW0_Jkr2emvzrX555AeEuj1iWGvmQ",authDomain:"irma-portal.firebaseapp.com",projectId:"irma-portal",storageBucket:"irma-portal.firebasestorage.app",messagingSenderId:"922312797707",appId:"1:922312797707:web:af9ab811562ca430cc210e"};
